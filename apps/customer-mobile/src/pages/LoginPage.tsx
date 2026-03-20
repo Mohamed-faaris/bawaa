@@ -1,27 +1,63 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, ArrowRight, Shield } from "lucide-react";
+import { Phone, ArrowRight, Shield, Loader2 } from "lucide-react";
 import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
+import { toast } from "@bawaa/ui/use-toast";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendOtp = () => {
-    if (phone.length >= 10) setStep("otp");
+  const sendOtp = useMutation(api.auth.sendOtp);
+  const verifyOtp = useMutation(api.auth.verifyOtp);
+
+  const handleSendOtp = async () => {
+    if (phone.length >= 10) {
+      setIsLoading(true);
+      try {
+        await sendOtp({ phone });
+        setStep("otp");
+      } catch (error) {
+        toast({ title: "Error", description: "Failed to send OTP" });
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
-  const handleVerify = () => {
-    if (otp.length >= 4) navigate("/profiles");
+  const handleVerify = async () => {
+    if (otp.length >= 4) {
+      setIsLoading(true);
+      try {
+        const result = await verifyOtp({ phone, code: otp });
+        if (result.success) {
+          localStorage.setItem("accountId", result.accountId);
+          toast({
+            title: "Success",
+            description: result.isNewUser ? "Welcome!" : "Welcome back!",
+          });
+          navigate("/home");
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Invalid OTP. Use 1234 for testing.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
     <div className="app-container min-h-screen flex flex-col bg-background">
-      {/* Header area */}
       <div className="flex-1 flex flex-col justify-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -30,7 +66,9 @@ const LoginPage = () => {
           className="space-y-2 mb-10"
         >
           <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-6">
-            <span className="text-primary-foreground text-2xl font-extrabold">B</span>
+            <span className="text-primary-foreground text-2xl font-extrabold">
+              B
+            </span>
           </div>
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
             Bavaa Medicals
@@ -49,9 +87,14 @@ const LoginPage = () => {
           {step === "phone" ? (
             <>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Phone Number</label>
+                <label className="text-sm font-semibold text-foreground">
+                  Phone Number
+                </label>
                 <div className="relative">
-                  <Phone size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Phone
+                    size={18}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     type="tel"
                     placeholder="Enter your phone number"
@@ -63,16 +106,23 @@ const LoginPage = () => {
               </div>
               <Button
                 onClick={handleSendOtp}
-                disabled={phone.length < 10}
+                disabled={phone.length < 10 || isLoading}
                 className="w-full h-13 rounded-xl text-base font-semibold gap-2"
               >
-                Send OTP <ArrowRight size={18} />
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  "Send OTP"
+                )}{" "}
+                <ArrowRight size={18} />
               </Button>
             </>
           ) : (
             <>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Enter OTP</label>
+                <label className="text-sm font-semibold text-foreground">
+                  Enter OTP
+                </label>
                 <p className="text-sm text-muted-foreground">
                   Code sent to +91 {phone}
                 </p>
@@ -87,10 +137,15 @@ const LoginPage = () => {
               </div>
               <Button
                 onClick={handleVerify}
-                disabled={otp.length < 4}
+                disabled={otp.length < 4 || isLoading}
                 className="w-full h-13 rounded-xl text-base font-semibold gap-2"
               >
-                Verify & Continue <Shield size={18} />
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  "Verify & Continue"
+                )}{" "}
+                <Shield size={18} />
               </Button>
               <button
                 onClick={() => setStep("phone")}
@@ -103,7 +158,6 @@ const LoginPage = () => {
         </motion.div>
       </div>
 
-      {/* Footer */}
       <div className="px-6 pb-8 text-center">
         <p className="text-xs text-muted-foreground">
           By continuing, you agree to our Terms of Service & Privacy Policy
