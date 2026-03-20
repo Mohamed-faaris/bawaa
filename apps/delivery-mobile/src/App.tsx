@@ -2,7 +2,13 @@ import { Toaster } from "@bawaa/ui/toaster";
 import { Toaster as Sonner } from "@bawaa/ui/sonner";
 import { TooltipProvider } from "@bawaa/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 
 import DeliveryBottomNav from "@/components/DeliveryBottomNav";
 
@@ -20,7 +26,8 @@ const NavigationBars = () => {
   const location = useLocation();
   const path = location.pathname;
 
-  const isDeliveryApp = path.startsWith("/delivery") && path !== "/delivery/login";
+  const isDeliveryApp =
+    path.startsWith("/delivery") && path !== "/delivery/login";
 
   return isDeliveryApp ? <DeliveryBottomNav /> : null;
 };
@@ -33,12 +40,19 @@ const App = () => (
       <BrowserRouter>
         <NavigationBars />
         <Routes>
+          <Route path="/" element={<Navigate to="/delivery" replace />} />
           <Route path="/delivery/login" element={<DeliveryLoginPage />} />
           <Route path="/delivery" element={<DeliveryQueuePage />} />
-          <Route path="/delivery/my-deliveries" element={<MyDeliveriesPage />} />
+          <Route
+            path="/delivery/my-deliveries"
+            element={<MyDeliveriesPage />}
+          />
           <Route path="/delivery/routes" element={<DeliveryRoutesPage />} />
           <Route path="/delivery/profile" element={<DeliveryProfilePage />} />
-          <Route path="/delivery/order/:orderId" element={<DeliveryOrderDetailPage />} />
+          <Route
+            path="/delivery/order/:orderId"
+            element={<DeliveryOrderDetailPage />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

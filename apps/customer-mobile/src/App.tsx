@@ -2,11 +2,16 @@ import { Toaster } from "@bawaa/ui/toaster";
 import { Toaster as Sonner } from "@bawaa/ui/sonner";
 import { TooltipProvider } from "@bawaa/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 
 import BottomNav from "@/components/BottomNav";
 
-import AppSwitcher from "@/pages/AppSwitcher";
 import LoginPage from "@/pages/LoginPage";
 import ProfileSelectPage from "@/pages/ProfileSelectPage";
 import HomePage from "@/pages/HomePage";
@@ -22,7 +27,14 @@ const NavigationBars = () => {
   const location = useLocation();
   const path = location.pathname;
 
-  const isCustomerApp = ["/home", "/upload", "/orders", "/history", "/settings", "/profiles"].includes(path);
+  const isCustomerApp = [
+    "/home",
+    "/upload",
+    "/orders",
+    "/history",
+    "/settings",
+    "/profiles",
+  ].includes(path);
 
   return isCustomerApp ? <BottomNav /> : null;
 };
@@ -35,7 +47,7 @@ const App = () => (
       <BrowserRouter>
         <NavigationBars />
         <Routes>
-          <Route path="/" element={<AppSwitcher />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profiles" element={<ProfileSelectPage />} />
           <Route path="/home" element={<HomePage />} />

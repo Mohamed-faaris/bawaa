@@ -2,7 +2,7 @@ import { Toaster } from "@bawaa/ui/toaster";
 import { Toaster as Sonner } from "@bawaa/ui/sonner";
 import { TooltipProvider } from "@bawaa/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AdminPanelLayout from "@/components/AdminPanelLayout";
 
@@ -26,14 +26,24 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Navigate to="/panel" replace />} />
           <Route element={<AdminPanelLayout />}>
             <Route path="/panel" element={<PanelDashboardPage />} />
             <Route path="/panel/orders" element={<PanelOrdersPage />} />
-            <Route path="/panel/prescriptions" element={<PanelPrescriptionsPage />} />
+            <Route
+              path="/panel/prescriptions"
+              element={<PanelPrescriptionsPage />}
+            />
             <Route path="/panel/deliveries" element={<PanelDeliveriesPage />} />
-            <Route path="/panel/deliveries/:staffId" element={<PanelDeliveryDetailPage />} />
+            <Route
+              path="/panel/deliveries/:staffId"
+              element={<PanelDeliveryDetailPage />}
+            />
             <Route path="/panel/users" element={<PanelUsersPage />} />
-            <Route path="/panel/users/:userId" element={<PanelUserDetailPage />} />
+            <Route
+              path="/panel/users/:userId"
+              element={<PanelUserDetailPage />}
+            />
             <Route path="/panel/analytics" element={<PanelAnalyticsPage />} />
             <Route path="/panel/settings" element={<PanelSettingsPage />} />
           </Route>
