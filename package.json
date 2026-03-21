@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "@convex-dev/auth": "^0.0.91",
-    "jose": "^6.2.2"
+    "jose": "^6.2.2",
+    "vaul": "^1.1.2"
   }
 }
