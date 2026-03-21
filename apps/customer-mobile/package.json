@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@bawaa/backend": "workspace:*",
+    "@bawaa/convex-db": "workspace:*",
     "@bawaa/ui": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@tanstack/react-query": "^5.83.0",

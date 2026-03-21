@@ -1,12 +1,10 @@
 import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+import * as DrawerPrimitive from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const Drawer = ({ shouldScaleBackground = true, ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
-);
-Drawer.displayName = "Drawer";
+const Drawer = DrawerPrimitive.Root;
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
@@ -18,7 +16,14 @@ const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-black/80", className)} {...props} />
+  <DrawerPrimitive.Overlay
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-[70] bg-black/75 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className,
+    )}
+    {...props}
+  />
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
@@ -31,25 +36,36 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background",
+        "fixed inset-0 z-[80] flex h-[100dvh] w-screen flex-col overflow-hidden bg-background outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4",
         className,
       )}
       {...props}
     >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
-      {children}
+      <div className="relative flex items-center justify-center px-4 pt-3 pb-2 shrink-0 border-b border-border/60">
+        <div className="h-1.5 w-12 rounded-full bg-muted-foreground/25" />
+        <DrawerPrimitive.Close className="absolute right-4 top-2 rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DrawerPrimitive.Close>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+        {children}
+      </div>
     </DrawerPrimitive.Content>
   </DrawerPortal>
 ));
 DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("grid gap-1.5 p-4 text-center sm:text-left", className)} {...props} />
+  <div className={cn("grid gap-1.5 px-4 pb-2 pt-2 text-center sm:text-left", className)} {...props} />
 );
 DrawerHeader.displayName = "DrawerHeader";
 
 const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mt-auto flex flex-col gap-2 p-4", className)} {...props} />
+  <div
+    className={cn("mt-auto flex flex-col gap-2 border-t border-border/60 px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]", className)}
+    {...props}
+  />
 );
 DrawerFooter.displayName = "DrawerFooter";
 

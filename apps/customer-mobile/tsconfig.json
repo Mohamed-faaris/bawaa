@@ -14,7 +14,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@bawaa/backend/*": ["../../packages/backend/*"]
+      "@bawaa/convex-db/*": ["../../packages/convex-db/*"]
     }
   },
   "include": ["src/**/*"],
