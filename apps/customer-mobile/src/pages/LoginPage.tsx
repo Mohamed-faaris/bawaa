@@ -6,7 +6,7 @@ import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
 import { toast } from "@bawaa/ui/use-toast";
 import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "@bawaa/backend/convex/_generated/api";
 
 const LoginPage = () => {
   const navigate = useNavigate();
