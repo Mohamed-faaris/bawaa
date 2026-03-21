@@ -32,33 +32,20 @@ const ProfileDrawer = ({
   const [age, setAge] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
-  console.log("ProfileDrawer render:", { open, accountId });
-
   const createProfile = useMutation(api.profiles.create);
 
   const handleCreate = async () => {
-    console.log("handleCreate called:", { accountId, name, age });
     if (!accountId || !name.trim()) {
-      console.log("Early return: !accountId or !name.trim()", {
-        accountId,
-        name,
-      });
       return;
     }
 
     setIsCreating(true);
     try {
-      console.log("Creating profile with:", {
-        accountId,
-        name: name.trim(),
-        age: age ? parseInt(age) : undefined,
-      });
       const result = await createProfile({
         accountId,
         name: name.trim(),
         age: age ? parseInt(age) : undefined,
       });
-      console.log("Profile created result:", result);
       if (result.profileId) {
         toast({ title: "Profile created successfully" });
         setName("");
@@ -66,7 +53,6 @@ const ProfileDrawer = ({
         onClose();
       }
     } catch (error) {
-      console.log("Error creating profile:", error);
       toast({ title: "Error", description: "Failed to create profile" });
     } finally {
       setIsCreating(false);
@@ -77,10 +63,7 @@ const ProfileDrawer = ({
     <Drawer
       open={open}
       onOpenChange={(o) => {
-        () => {
-          console.log("Drawer onOpenChange:", o);
-          if (!o) onClose();
-        };
+        if (!o) onClose();
       }}
     >
       <DrawerContent>
@@ -143,10 +126,6 @@ const UploadPrescriptionPage = () => {
   const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    console.log("isDrawerOpen changed to:", isDrawerOpen);
-  }, [isDrawerOpen]);
 
   const profiles = useQuery(api.profiles.list, {
     accountId: accountId ?? null,
@@ -259,9 +238,6 @@ const UploadPrescriptionPage = () => {
               )}
               <button
                 onClick={() => {
-                  console.log(
-                    "Add Profile button clicked, setting isDrawerOpen to true",
-                  );
                   setIsDrawerOpen(true);
                 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-border bg-card text-muted-foreground text-sm font-medium transition-colors hover:border-primary/50 hover:text-primary"
