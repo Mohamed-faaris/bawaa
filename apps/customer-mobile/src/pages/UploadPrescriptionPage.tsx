@@ -65,8 +65,9 @@ const ProfileDrawer = ({
       onOpenChange={(o) => {
         if (!o) onClose();
       }}
+      direction="bottom"
     >
-      <DrawerContent>
+      <DrawerContent className="w-screen">
         <DrawerHeader className="text-left">
           <DrawerTitle>Add New Profile</DrawerTitle>
           <DrawerDescription>
