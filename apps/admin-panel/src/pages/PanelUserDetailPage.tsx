@@ -77,7 +77,7 @@ const PanelUserDetailPage = () => {
     );
   }
 
-  const totalSpent = accountOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalSpent = accountOrders.reduce((sum, _o) => sum + 0, 0);
   const avgOrderValue =
     accountOrders.length > 0 ? totalSpent / accountOrders.length : 0;
 
@@ -125,7 +125,7 @@ const PanelUserDetailPage = () => {
             </p>
             <p className="text-sm text-foreground flex items-center gap-2">
               <MapPin size={14} className="text-muted-foreground" />{" "}
-              {account.address || "No address"}
+              {"No address on file"}
             </p>
             <p className="text-sm text-foreground flex items-center gap-2">
               <Calendar size={14} className="text-muted-foreground" /> Joined{" "}
