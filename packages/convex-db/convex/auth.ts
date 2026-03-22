@@ -45,8 +45,9 @@ export const verifyOtp = mutation({
 });
 
 export const getAccount = query({
-  args: { accountId: v.id("accounts") },
+  args: { accountId: v.union(v.id("accounts"), v.null()) },
   handler: async (ctx, args) => {
+    if (!args.accountId) return null;
     return await ctx.db.get(args.accountId);
   },
 });

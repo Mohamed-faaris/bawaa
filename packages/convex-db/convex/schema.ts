@@ -16,7 +16,13 @@ export default defineSchema({
   }).index("by_account", ["accountId"]),
   orders: defineTable({
     profileId: v.id("profiles"),
-    prescription: v.optional(v.string()),
+    prescription: v.optional(
+      v.object({
+        imageUrl: v.optional(v.string()),
+        storageId: v.optional(v.string()),
+        notes: v.optional(v.string()),
+      }),
+    ),
     status: v.union(
       v.literal("ordered"),
       v.literal("processing"),
@@ -27,4 +33,9 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_profile", ["profileId"]),
+  admins: defineTable({
+    secretHash: v.string(),
+    name: v.string(),
+    createdAt: v.number(),
+  }),
 });

@@ -47,12 +47,22 @@ export const get = query({
 export const create = mutation({
   args: {
     profileId: v.id("profiles"),
-    prescription: v.optional(v.string()),
+    prescription: v.optional(
+      v.object({
+        imageUrl: v.optional(v.string()),
+        storageId: v.optional(v.string()),
+        notes: v.optional(v.string()),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const orderId = await ctx.db.insert("orders", {
       profileId: args.profileId,
-      prescription: args.prescription,
+      prescription: args.prescription ?? {
+        imageUrl: undefined,
+        storageId: undefined,
+        notes: undefined,
+      },
       status: "ordered",
       createdAt: Date.now(),
       updatedAt: Date.now(),

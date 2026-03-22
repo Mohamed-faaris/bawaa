@@ -56,7 +56,11 @@ const PrescriptionHistoryPage = () => {
                 order: {
                   _id: Id<"orders">;
                   createdAt: number;
-                  prescription?: string;
+                  prescription?: {
+                    imageUrl?: string;
+                    storageId?: string;
+                    notes?: string;
+                  };
                 },
                 i: number,
               ) => (
