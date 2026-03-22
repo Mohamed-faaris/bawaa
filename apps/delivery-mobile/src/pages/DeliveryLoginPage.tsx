@@ -26,7 +26,7 @@ const DeliveryLoginPage = () => {
             <Truck className="text-info-foreground" size={28} />
           </div>
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-            Bavaa Delivery
+            Bawaa Delivery
           </h1>
           <p className="text-muted-foreground text-base">
             Delivery staff portal
@@ -40,9 +40,14 @@ const DeliveryLoginPage = () => {
           className="space-y-4"
         >
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Staff ID</label>
+            <label className="text-sm font-semibold text-foreground">
+              Staff ID
+            </label>
             <div className="relative">
-              <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <User
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <Input
                 placeholder="Enter your staff ID"
                 value={staffId}

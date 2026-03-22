@@ -42,7 +42,7 @@ const AdminPanelLayout = () => {
           </div>
           {!collapsed && (
             <span className="font-extrabold text-foreground text-sm">
-              Bavaa Admin
+              Bawaa Admin
             </span>
           )}
         </div>

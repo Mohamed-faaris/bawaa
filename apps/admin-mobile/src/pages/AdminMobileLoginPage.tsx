@@ -25,7 +25,7 @@ const AdminMobileLoginPage = () => {
             Admin Portal
           </h1>
           <p className="text-muted-foreground text-base">
-            Bavaa Medicals — Quick Dashboard
+            Bawaa Medicals — Quick Dashboard
           </p>
         </motion.div>
 

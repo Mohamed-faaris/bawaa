@@ -71,7 +71,7 @@ const LoginPage = () => {
             </span>
           </div>
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-            Bavaa Medicals
+            Bawaa Medicals
           </h1>
           <p className="text-muted-foreground text-base">
             Your trusted pharmacy, delivered to your door.

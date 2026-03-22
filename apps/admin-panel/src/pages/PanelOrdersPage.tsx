@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@bawaa/ui/dialog";
 import StatusBadge from "@/components/StatusBadge";
 import { toast } from "sonner";
@@ -150,7 +151,13 @@ const PanelOrdersPage = () => {
                 </span>
                 <div className="relative">
                   <button
-                    onClick={() => setSelectedOrder(order)}
+                    onClick={() => {
+                      console.log(
+                        "[PanelOrdersPage] View clicked for order:",
+                        order._id,
+                      );
+                      setSelectedOrder(order);
+                    }}
                     className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80"
                   >
                     View
@@ -174,11 +181,18 @@ const PanelOrdersPage = () => {
       {/* Order Detail Dialog */}
       <Dialog
         open={!!selectedOrder}
-        onOpenChange={() => setSelectedOrder(null)}
+        onOpenChange={() => {
+          console.log(
+            "[PanelOrdersPage] Dialog onOpenChange called, selectedOrder:",
+            selectedOrder?._id,
+          );
+          setSelectedOrder(null);
+        }}
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Order Details</DialogTitle>
+            <DialogDescription>View and manage order status</DialogDescription>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
