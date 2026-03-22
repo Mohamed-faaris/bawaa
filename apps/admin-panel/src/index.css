@@ -72,31 +72,3 @@
     @apply bg-card/80 backdrop-blur-lg border border-border/50 rounded-xl shadow-sm;
   }
 }
-
-/* Radix Dialog overrides */
-[data-radix-portal] {
-  position: relative;
-  z-index: 9999;
-}
-
-[data-state="open"] {
-  animation: dialog-open 0.2s ease-out;
-}
-
-@keyframes dialog-open {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* Force dialog visibility for debugging */
-dialog-debug,
-[data-radix-dialog-content] {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
