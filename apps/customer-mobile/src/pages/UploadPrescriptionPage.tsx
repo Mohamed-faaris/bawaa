@@ -62,7 +62,6 @@ const UploadPrescriptionPage = () => {
 
     setIsSubmitting(true);
     try {
-      let imageUrl: string | undefined;
       let storageId: string | undefined;
 
       if (file) {
@@ -80,13 +79,12 @@ const UploadPrescriptionPage = () => {
 
         const result = await fileResponse.json();
         storageId = result.storageId;
-        imageUrl = preview || undefined;
       }
 
       await createOrder({
         profileId: selectedProfileId,
         prescription: {
-          imageUrl,
+          imageUrl: undefined,
           storageId,
           notes: notes || undefined,
           items: [],

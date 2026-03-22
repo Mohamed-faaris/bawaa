@@ -21,13 +21,13 @@ export default defineSchema({
         imageUrl: v.optional(v.string()),
         storageId: v.optional(v.string()),
         notes: v.optional(v.string()),
-        items: v.optional(v.array(
+        items: v.array(
           v.object({
             name: v.optional(v.string()),
             quantity: v.optional(v.number()),
             note: v.optional(v.string()),
           }),
-        )),
+        ),
       }),
     ),
     status: v.union(

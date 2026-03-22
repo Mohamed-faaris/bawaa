@@ -1,6 +1,19 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+const prescriptionItemValidator = v.object({
+  name: v.optional(v.string()),
+  quantity: v.optional(v.number()),
+  note: v.optional(v.string()),
+});
+
+const prescriptionValidator = v.object({
+  imageUrl: v.optional(v.string()),
+  storageId: v.optional(v.string()),
+  notes: v.optional(v.string()),
+  items: v.optional(v.array(prescriptionItemValidator)),
+});
+
 export const verifySecret = query({
   args: { secret: v.string() },
   handler: async (ctx, args) => {
@@ -46,10 +59,19 @@ export const updateOrderStatus = mutation({
       v.literal("out_for_delivery"),
       v.literal("delivered"),
     ),
+    prescription: v.optional(prescriptionValidator),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.orderId, {
       status: args.status,
+      prescription: args.prescription
+        ? {
+            imageUrl: args.prescription.imageUrl,
+            storageId: args.prescription.storageId,
+            notes: args.prescription.notes,
+            items: args.prescription.items ?? [],
+          }
+        : undefined,
       updatedAt: Date.now(),
     });
     return { success: true };

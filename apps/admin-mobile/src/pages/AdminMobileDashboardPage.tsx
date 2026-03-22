@@ -1,25 +1,68 @@
 import { motion } from "framer-motion";
-import { Package, Clock, CheckCircle2, Truck, AlertTriangle, ShoppingBag } from "lucide-react";
+import {
+  Package,
+  Clock,
+  CheckCircle2,
+  Truck,
+  AlertTriangle,
+  ShoppingBag,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "@/components/PageTransition";
-
-const stats = [
-  { label: "New Orders", value: 8, icon: ShoppingBag, color: "bg-info/10 text-info" },
-  { label: "Pending Review", value: 3, icon: Clock, color: "bg-warning/10 text-warning" },
-  { label: "Processing", value: 5, icon: Package, color: "bg-primary/10 text-primary" },
-  { label: "Ready", value: 4, icon: Truck, color: "bg-accent/10 text-accent" },
-  { label: "Delivered", value: 42, icon: CheckCircle2, color: "bg-success/10 text-success" },
-  { label: "Issues", value: 1, icon: AlertTriangle, color: "bg-destructive/10 text-destructive" },
-];
+import { formatOrderCode, useAdminOrders } from "@/hooks/useAdminOrders";
 
 const AdminMobileDashboardPage = () => {
   const navigate = useNavigate();
+  const { orders } = useAdminOrders();
+
+  const stats = [
+    {
+      label: "New Orders",
+      value: orders.filter((order) => order.status === "ordered").length,
+      icon: ShoppingBag,
+      color: "bg-info/10 text-info",
+    },
+    {
+      label: "Pending Review",
+      value: orders.filter((order) => order.status === "ordered").length,
+      icon: Clock,
+      color: "bg-warning/10 text-warning",
+    },
+    {
+      label: "Processing",
+      value: orders.filter((order) => order.status === "processing").length,
+      icon: Package,
+      color: "bg-primary/10 text-primary",
+    },
+    {
+      label: "Ready",
+      value: orders.filter((order) => order.status === "ready").length,
+      icon: Truck,
+      color: "bg-accent/10 text-accent",
+    },
+    {
+      label: "Delivered",
+      value: orders.filter((order) => order.status === "delivered").length,
+      icon: CheckCircle2,
+      color: "bg-success/10 text-success",
+    },
+    {
+      label: "Active Delivery",
+      value: orders.filter((order) => order.status === "out_for_delivery").length,
+      icon: AlertTriangle,
+      color: "bg-destructive/10 text-destructive",
+    },
+  ];
+
+  const recentOrders = [...orders].slice(0, 3);
 
   return (
     <PageTransition>
       <div className="app-container screen-padding">
         <h1 className="text-xl font-extrabold text-foreground mb-1">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mb-6">Today's overview</p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Live overview from Convex
+        </p>
 
         <div className="grid grid-cols-2 gap-3 mb-8">
           {stats.map((stat, i) => (
@@ -41,29 +84,39 @@ const AdminMobileDashboardPage = () => {
         </div>
 
         {/* Recent Activity */}
-        <h3 className="font-bold text-foreground mb-3">Recent Activity</h3>
+        <h3 className="font-bold text-foreground mb-3">Recent Orders</h3>
         <div className="space-y-2">
-          {[
-            { text: "New prescription uploaded by Rajesh Kumar", time: "2 min ago", type: "info" },
-            { text: "ORD-2048 marked as processing", time: "15 min ago", type: "success" },
-            { text: "Delivery failed for ORD-2040", time: "1 hr ago", type: "error" },
-          ].map((activity, i) => (
+          {recentOrders.map((order, i) => (
             <motion.div
-              key={i}
+              key={order._id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + i * 0.06 }}
               className="glass-card p-3 flex items-start gap-3"
             >
               <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                activity.type === "info" ? "bg-info" : activity.type === "success" ? "bg-success" : "bg-destructive"
+                order.status === "delivered"
+                  ? "bg-success"
+                  : order.status === "out_for_delivery"
+                    ? "bg-destructive"
+                    : "bg-info"
               }`} />
               <div>
-                <p className="text-sm text-foreground">{activity.text}</p>
-                <p className="text-xs text-muted-foreground">{activity.time}</p>
+                <p className="text-sm text-foreground">
+                  {formatOrderCode(order._id)} for {order.account?.name || order.profile.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {order.status.replaceAll("_", " ")} ·{" "}
+                  {new Date(order.createdAt).toLocaleString()}
+                </p>
               </div>
             </motion.div>
           ))}
+          {recentOrders.length === 0 && (
+            <div className="glass-card p-4 text-sm text-muted-foreground">
+              No orders available yet.
+            </div>
+          )}
         </div>
       </div>
     </PageTransition>

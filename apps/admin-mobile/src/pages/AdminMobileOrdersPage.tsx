@@ -5,13 +5,18 @@ import { Input } from "@bawaa/ui/input";
 import PageTransition from "@/components/PageTransition";
 import StatusBadge from "@/components/StatusBadge";
 import { useNavigate } from "react-router-dom";
-import { useAdminOrders, type OrderStatus } from "@/hooks/useAdminOrders";
+import {
+  formatOrderCode,
+  useAdminOrders,
+  type OrderStatus,
+} from "@/hooks/useAdminOrders";
 
 const tabs: { label: string; value: OrderStatus | "all" }[] = [
   { label: "All", value: "all" },
-  { label: "Pending", value: "pending" },
+  { label: "Ordered", value: "ordered" },
   { label: "Processing", value: "processing" },
   { label: "Ready", value: "ready" },
+  { label: "Out for delivery", value: "out_for_delivery" },
   { label: "Delivered", value: "delivered" },
 ];
 
@@ -23,11 +28,12 @@ const AdminMobileOrdersPage = () => {
 
   const filtered = orders.filter((o) => {
     const matchFilter = filter === "all" || o.status === filter;
-    const matchSearch = o.id.toLowerCase().includes(search.toLowerCase()) || o.customer.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      formatOrderCode(o._id).toLowerCase().includes(search.toLowerCase()) ||
+      (o.account?.name || "").toLowerCase().includes(search.toLowerCase()) ||
+      o.profile.name.toLowerCase().includes(search.toLowerCase());
     return matchFilter && matchSearch;
   });
-
-  const getTotal = (items: { price: number; qty: number }[]) => items.reduce((s, i) => s + i.price * i.qty, 0);
 
   return (
     <PageTransition>
@@ -55,30 +61,37 @@ const AdminMobileOrdersPage = () => {
 
         <div className="space-y-3">
           {filtered.map((order, i) => {
-            const total = getTotal(order.items);
+            const prescriptionItems = order.prescription?.items ?? [];
+            const itemCount = prescriptionItems.length;
+            const hasPrescriptionImage =
+              !!order.prescription?.storageId || !!order.prescription?.imageUrl;
             return (
               <motion.div
-                key={order.id}
+                key={order._id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
-                onClick={() => navigate(`/admin-mobile/orders/${order.id}`)}
+                onClick={() => navigate(`/admin-mobile/orders/${order._id}`)}
                 className="glass-card p-4 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-foreground text-sm">{order.id}</p>
-                      {order.type === "prescription" && (
+                      <p className="font-semibold text-foreground text-sm">
+                        {formatOrderCode(order._id)}
+                      </p>
+                      {hasPrescriptionImage && (
                         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/20 text-accent-foreground flex items-center gap-0.5">
                           <ImageIcon size={10} /> Rx
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {order.customer} · {order.items.length > 0 ? `${order.items.length} items` : "Prescription"} · {order.date}
+                      {order.account?.name || "Unknown customer"} ·{" "}
+                      {order.profile.name} ·{" "}
+                      {itemCount > 0 ? `${itemCount} items` : "Prescription"} ·{" "}
+                      {new Date(order.createdAt).toLocaleDateString()}
                     </p>
-                    {total > 0 && <p className="text-xs font-bold text-foreground mt-0.5">₹{total}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={order.status} />
@@ -89,6 +102,11 @@ const AdminMobileOrdersPage = () => {
             );
           })}
         </div>
+        {filtered.length === 0 && (
+          <div className="glass-card p-5 text-center text-sm text-muted-foreground">
+            No orders match the current filters.
+          </div>
+        )}
       </div>
     </PageTransition>
   );

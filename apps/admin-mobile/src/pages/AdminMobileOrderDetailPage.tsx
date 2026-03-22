@@ -1,83 +1,232 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Phone, ImageIcon, Pencil, Plus, Trash2, CheckCircle2, XCircle, Truck, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft,
+  Phone,
+  ImageIcon,
+  Pencil,
+  CheckCircle2,
+  Truck,
+  Plus,
+  Trash2,
+  Save,
+} from "lucide-react";
+import { useAction } from "convex/react";
 import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
+import { Textarea } from "@bawaa/ui/textarea";
 import PageTransition from "@/components/PageTransition";
 import StatusBadge from "@/components/StatusBadge";
 import { toast } from "sonner";
-import { useAdminOrders, type OrderStatus } from "@/hooks/useAdminOrders";
+import { api } from "@bawaa/convex-db/convex/_generated/api";
+import {
+  formatOrderCode,
+  useAdminOrders,
+  type OrderStatus,
+  type PrescriptionItem,
+} from "@/hooks/useAdminOrders";
 
 const AdminMobileOrderDetailPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { orders, updateStatus, addItem, removeItem } = useAdminOrders();
+  const { orders, updateStatus } = useAdminOrders();
+  const getImageUrl = useAction(api.storage.getImageUrl);
 
-  const order = orders.find((o) => o.id === orderId);
-  const [isEditing, setIsEditing] = useState(false);
+  const order = orders.find((o) => o._id === orderId);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [newItemName, setNewItemName] = useState("");
-  const [newItemQty, setNewItemQty] = useState("1");
-  const [newItemPrice, setNewItemPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isEditingPrescription, setIsEditingPrescription] = useState(false);
+  const [isSavingPrescription, setIsSavingPrescription] = useState(false);
+  const [editedNotes, setEditedNotes] = useState("");
+  const [editedItems, setEditedItems] = useState<PrescriptionItem[]>([]);
 
   const allStatuses: { value: OrderStatus; label: string }[] = [
-    { value: "pending", label: "Pending" },
+    { value: "ordered", label: "Ordered" },
     { value: "processing", label: "Processing" },
     { value: "ready", label: "Ready" },
+    { value: "out_for_delivery", label: "Out for delivery" },
     { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
   ];
+
+  useEffect(() => {
+    if (!order) {
+      return;
+    }
+    setEditedNotes(order.prescription?.notes ?? "");
+    setEditedItems((order.prescription?.items ?? []).map((item) => ({ ...item })));
+    setIsEditingPrescription(false);
+  }, [order]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadImage = async () => {
+      if (!order) {
+        return;
+      }
+
+      if (order.prescription?.storageId) {
+        try {
+          const url = await getImageUrl({
+            storageId: order.prescription.storageId,
+          });
+          if (!cancelled) {
+            setImageUrl(url ?? null);
+          }
+          return;
+        } catch (error) {
+          console.error("Failed to resolve storage image URL", error);
+        }
+      }
+
+      const fallbackImage =
+        order.prescription?.imageUrl &&
+        !order.prescription.imageUrl.startsWith("blob:")
+          ? order.prescription.imageUrl
+          : null;
+      if (!cancelled) {
+        setImageUrl(fallbackImage);
+      }
+    };
+
+    void loadImage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getImageUrl, order]);
 
   if (!order) {
     return (
       <PageTransition>
         <div className="app-container screen-padding text-center pt-20">
           <p className="text-muted-foreground">Order not found</p>
-          <Button variant="ghost" onClick={() => navigate("/admin-mobile/orders")} className="mt-4">Go back</Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/admin-mobile/orders")}
+            className="mt-4"
+          >
+            Go back
+          </Button>
         </div>
       </PageTransition>
     );
   }
 
-  const total = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const prescriptionItems = order.prescription?.items ?? [];
 
-  const handleAddItem = () => {
-    if (!newItemName || !newItemPrice) return;
-    addItem(order.id, { name: newItemName, qty: parseInt(newItemQty) || 1, price: parseFloat(newItemPrice) || 0 });
-    setNewItemName("");
-    setNewItemQty("1");
-    setNewItemPrice("");
+  const handleStatusChange = async (status: OrderStatus) => {
+    try {
+      await updateStatus(order._id, status);
+      setShowStatusMenu(false);
+      toast.success(`Status updated to ${status.replaceAll("_", " ")}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update order status");
+    }
+  };
+
+  const updateItemField = (
+    index: number,
+    field: keyof PrescriptionItem,
+    value: string,
+  ) => {
+    setEditedItems((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              [field]:
+                field === "quantity"
+                  ? value === ""
+                    ? undefined
+                    : Number(value)
+                  : value || undefined,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const addItem = () => {
+    setEditedItems((current) => [
+      ...current,
+      { name: undefined, quantity: 1, note: undefined },
+    ]);
+  };
+
+  const removeItem = (index: number) => {
+    setEditedItems((current) =>
+      current.filter((_, itemIndex) => itemIndex !== index),
+    );
+  };
+
+  const handleSavePrescription = async () => {
+    setIsSavingPrescription(true);
+    try {
+      await updateStatus(order._id, order.status, {
+        imageUrl:
+          order.prescription?.imageUrl &&
+          !order.prescription.imageUrl.startsWith("blob:")
+            ? order.prescription.imageUrl
+            : undefined,
+        storageId: order.prescription?.storageId,
+        notes: editedNotes || undefined,
+        items: editedItems.map((item) => ({
+          name: item.name || undefined,
+          quantity: item.quantity,
+          note: item.note || undefined,
+        })),
+      });
+      setIsEditingPrescription(false);
+      toast.success("Prescription details updated");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save prescription details");
+    } finally {
+      setIsSavingPrescription(false);
+    }
   };
 
   return (
     <PageTransition>
       <div className="app-container screen-padding">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <button onClick={() => navigate("/admin-mobile/orders")} className="p-1.5 rounded-lg bg-secondary text-foreground">
+          <button
+            onClick={() => navigate("/admin-mobile/orders")}
+            className="p-1.5 rounded-lg bg-secondary text-foreground"
+          >
             <ArrowLeft size={18} />
           </button>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-extrabold text-foreground">{order.id}</h1>
-              {order.type === "prescription" && (
+              <h1 className="text-lg font-extrabold text-foreground">
+                {formatOrderCode(order._id)}
+              </h1>
+              {imageUrl && (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/20 text-accent-foreground flex items-center gap-0.5">
                   <ImageIcon size={10} /> Rx
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">{order.date}</p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(order.createdAt).toLocaleString()}
+            </p>
           </div>
           <StatusBadge status={order.status} />
         </div>
 
-        {/* Customer + Call */}
         <div className="glass-card p-4 mb-3">
-          <p className="text-sm font-semibold text-foreground">{order.customer}</p>
-          <p className="text-xs text-muted-foreground mb-3">{order.phone}</p>
+          <p className="text-sm font-semibold text-foreground">
+            {order.account?.name || "Unknown customer"}
+          </p>
+          <p className="text-xs text-muted-foreground">{order.profile.name}</p>
+          <p className="text-xs text-muted-foreground mb-3">
+            {order.account?.phone || "Phone not available"}
+          </p>
           <a
-            href={`tel:${order.phone.replace(/\s/g, "")}`}
+            href={`tel:${(order.account?.phone || "").replace(/\s/g, "")}`}
             className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold w-full"
           >
             <Phone size={16} />
@@ -85,106 +234,188 @@ const AdminMobileOrderDetailPage = () => {
           </a>
         </div>
 
-        {/* Prescription image */}
-        {order.type === "prescription" && order.prescriptionUrl && (
+        {imageUrl && (
           <div className="glass-card p-4 mb-3">
-            <p className="text-xs font-semibold text-muted-foreground mb-2">Prescription Image</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              Prescription Image
+            </p>
             <img
-              src={order.prescriptionUrl}
+              src={imageUrl}
               alt="Prescription"
               className="w-full h-48 object-cover rounded-lg border border-border bg-secondary"
             />
           </div>
         )}
 
-        {/* Items */}
         <div className="glass-card p-4 mb-3">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-muted-foreground">
-              Items {order.items.length > 0 && `(${order.items.length})`}
+              Items{" "}
+              {(isEditingPrescription ? editedItems : prescriptionItems).length > 0 &&
+                `(${(isEditingPrescription ? editedItems : prescriptionItems).length})`}
             </p>
-            {(order.status === "pending" || order.status === "processing") && (
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="text-xs text-primary font-semibold flex items-center gap-1"
+            <button
+              onClick={() => setIsEditingPrescription((current) => !current)}
+              className="text-xs text-primary font-semibold flex items-center gap-1"
+            >
+              <Pencil size={11} /> {isEditingPrescription ? "Cancel" : "Edit"}
+            </button>
+          </div>
+
+          {!isEditingPrescription && prescriptionItems.length === 0 && (
+            <p className="text-xs text-muted-foreground italic">
+              No structured prescription items were saved for this order yet.
+            </p>
+          )}
+
+          {!isEditingPrescription && prescriptionItems.length > 0 && (
+            <div className="space-y-0">
+              {prescriptionItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+                >
+                  <div>
+                    <p className="text-sm text-foreground">
+                      {item.name || `Item ${idx + 1}`}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Qty: {item.quantity ?? 1}
+                    </p>
+                  </div>
+                  {item.note && (
+                    <p className="text-[11px] text-muted-foreground max-w-[40%] text-right">
+                      {item.note}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isEditingPrescription && (
+            <div className="space-y-3">
+              {editedItems.map((item, idx) => (
+                <div key={idx} className="rounded-xl bg-secondary/50 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      Item {idx + 1}
+                    </p>
+                    <button
+                      onClick={() => removeItem(idx)}
+                      className="text-destructive p-1"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <Input
+                    value={item.name ?? ""}
+                    onChange={(event) =>
+                      updateItemField(idx, "name", event.target.value)
+                    }
+                    placeholder="Medicine name"
+                    className="h-9 text-xs rounded-lg"
+                  />
+                  <Input
+                    value={item.quantity ?? ""}
+                    onChange={(event) =>
+                      updateItemField(idx, "quantity", event.target.value)
+                    }
+                    placeholder="Quantity"
+                    type="number"
+                    min="1"
+                    className="h-9 text-xs rounded-lg"
+                  />
+                  <Input
+                    value={item.note ?? ""}
+                    onChange={(event) =>
+                      updateItemField(idx, "note", event.target.value)
+                    }
+                    placeholder="Note"
+                    className="h-9 text-xs rounded-lg"
+                  />
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addItem}
+                className="w-full rounded-xl gap-2"
               >
-                <Pencil size={11} /> {isEditing ? "Done" : "Edit"}
-              </button>
+                <Plus size={14} />
+                Add Item
+              </Button>
+            </div>
+          )}
+
+          <div className="mt-3 pt-3 border-t border-border">
+            <p className="text-xs font-semibold text-muted-foreground mb-1">
+              Notes
+            </p>
+            {isEditingPrescription ? (
+              <Textarea
+                value={editedNotes}
+                onChange={(event) => setEditedNotes(event.target.value)}
+                placeholder="Add admin notes for this prescription"
+                className="rounded-xl bg-card border-border min-h-[96px] resize-none"
+              />
+            ) : order.prescription?.notes ? (
+              <p className="text-sm text-foreground">{order.prescription.notes}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">
+                No notes saved yet.
+              </p>
             )}
           </div>
 
-          {order.items.length === 0 && !isEditing && (
-            <p className="text-xs text-muted-foreground italic">No items yet — tap Edit to add items from prescription</p>
-          )}
-
-          <div className="space-y-0">
-            {order.items.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
-                <div>
-                  <p className="text-sm text-foreground">{item.name}</p>
-                  <p className="text-[11px] text-muted-foreground">Qty: {item.qty} × ₹{item.price}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-foreground">₹{item.qty * item.price}</p>
-                  {isEditing && (
-                    <button onClick={() => removeItem(order.id, idx)} className="text-destructive p-1">
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Add item form */}
-          {isEditing && (
-            <div className="mt-3 space-y-2 p-3 rounded-lg bg-secondary/50">
-              <Input placeholder="Medicine name" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} className="h-9 text-xs rounded-lg" />
-              <div className="flex gap-2">
-                <Input placeholder="Qty" type="number" value={newItemQty} onChange={(e) => setNewItemQty(e.target.value)} className="h-9 text-xs rounded-lg w-16" />
-                <Input placeholder="Price ₹" type="number" value={newItemPrice} onChange={(e) => setNewItemPrice(e.target.value)} className="h-9 text-xs rounded-lg flex-1" />
-                <Button size="sm" onClick={handleAddItem} className="h-9 text-xs rounded-lg gap-1 px-3">
-                  <Plus size={12} /> Add
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {order.items.length > 0 && (
-            <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
-              <p className="text-sm font-bold text-foreground">Total</p>
-              <p className="text-sm font-bold text-foreground">₹{total}</p>
-            </div>
+          {isEditingPrescription && (
+            <Button
+              onClick={() => void handleSavePrescription()}
+              disabled={isSavingPrescription}
+              className="w-full mt-3 rounded-xl gap-2"
+            >
+              <Save size={14} />
+              {isSavingPrescription ? "Saving..." : "Save Prescription Details"}
+            </Button>
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2 mt-4 items-center">
-          {order.status === "pending" && (
-            <>
-              <Button onClick={() => { updateStatus(order.id, "processing"); navigate("/admin-mobile/orders"); }} className="flex-1 rounded-xl h-11 text-sm gap-1.5">
-                <CheckCircle2 size={15} /> Approve Order
-              </Button>
-              <Button variant="outline" onClick={() => { updateStatus(order.id, "cancelled"); navigate("/admin-mobile/orders"); }} className="rounded-xl h-11 text-sm text-destructive gap-1.5 px-4">
-                <XCircle size={15} /> Reject
-              </Button>
-            </>
+          {order.status === "ordered" && (
+            <Button
+              onClick={() => handleStatusChange("processing")}
+              className="flex-1 rounded-xl h-11 text-sm gap-1.5"
+            >
+              <CheckCircle2 size={15} /> Approve Order
+            </Button>
           )}
           {order.status === "processing" && (
-            <Button onClick={() => { updateStatus(order.id, "ready"); navigate("/admin-mobile/orders"); }} className="flex-1 rounded-xl h-11 text-sm bg-accent hover:bg-accent/90 gap-1.5">
+            <Button
+              onClick={() => handleStatusChange("ready")}
+              className="flex-1 rounded-xl h-11 text-sm bg-accent hover:bg-accent/90 gap-1.5"
+            >
               <Truck size={15} /> Mark Ready
             </Button>
           )}
           {order.status === "ready" && (
-            <Button disabled className="flex-1 rounded-xl h-11 text-sm gap-1.5 opacity-60">
-              <Truck size={15} /> Waiting for Delivery
+            <Button
+              onClick={() => handleStatusChange("out_for_delivery")}
+              className="flex-1 rounded-xl h-11 text-sm gap-1.5"
+            >
+              <Truck size={15} /> Start Delivery
             </Button>
           )}
-          {(order.status === "delivered" || order.status === "cancelled") && (
-            <div className="flex-1" />
+          {order.status === "out_for_delivery" && (
+            <Button
+              onClick={() => handleStatusChange("delivered")}
+              className="flex-1 rounded-xl h-11 text-sm gap-1.5"
+            >
+              <CheckCircle2 size={15} /> Mark Delivered
+            </Button>
           )}
+          {order.status === "delivered" && <div className="flex-1" />}
 
-          {/* Override status pencil */}
           <div className="relative">
             <button
               onClick={() => setShowStatusMenu(!showStatusMenu)}
@@ -203,11 +434,7 @@ const AdminMobileOrderDetailPage = () => {
                   .map((s) => (
                     <button
                       key={s.value}
-                      onClick={() => {
-                        updateStatus(order.id, s.value);
-                        setShowStatusMenu(false);
-                        toast.success(`Status → ${s.label}`);
-                      }}
+                      onClick={() => void handleStatusChange(s.value)}
                       className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-secondary/60 transition-colors"
                     >
                       {s.label}

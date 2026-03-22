@@ -2,14 +2,7 @@ import { motion } from "framer-motion";
 import { Bell, AlertTriangle, Upload, Package, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "@/components/PageTransition";
-
-const alerts = [
-  { icon: Upload, title: "New Prescription", desc: "Lakshmi Devi uploaded a new prescription", time: "Just now", type: "info" as const, link: "/admin-mobile/orders/ORD-2053" },
-  { icon: Upload, title: "New Prescription", desc: "Mohammed Ali uploaded a new prescription", time: "2 min ago", type: "info" as const, link: "/admin-mobile/orders/ORD-2051" },
-  { icon: AlertTriangle, title: "Delivery Issue", desc: "ORD-2040 delivery failed — customer unreachable", time: "1 hr ago", type: "error" as const, link: "/admin-mobile/orders" },
-  { icon: Package, title: "Order Processed", desc: "ORD-2048 has been processed and packed", time: "2 hrs ago", type: "success" as const, link: "/admin-mobile/orders/ORD-2048" },
-  { icon: Upload, title: "New Prescription", desc: "Sneha Iyer uploaded a prescription", time: "3 hrs ago", type: "info" as const, link: "/admin-mobile/orders/ORD-2050" },
-];
+import { formatOrderCode, useAdminOrders } from "@/hooks/useAdminOrders";
 
 const typeColors = {
   info: "bg-info/10 text-info",
@@ -19,6 +12,40 @@ const typeColors = {
 
 const AdminMobileAlertsPage = () => {
   const navigate = useNavigate();
+  const { orders } = useAdminOrders();
+
+  const alerts = orders.slice(0, 5).map((order) => {
+    if (order.status === "ordered") {
+      return {
+        icon: Upload,
+        title: "New Order",
+        desc: `${order.account?.name || order.profile.name} placed ${formatOrderCode(order._id)}`,
+        time: new Date(order.createdAt).toLocaleString(),
+        type: "info" as const,
+        link: `/admin-mobile/orders/${order._id}`,
+      };
+    }
+
+    if (order.status === "out_for_delivery") {
+      return {
+        icon: AlertTriangle,
+        title: "Delivery In Progress",
+        desc: `${formatOrderCode(order._id)} is on the way`,
+        time: new Date(order.updatedAt).toLocaleString(),
+        type: "error" as const,
+        link: `/admin-mobile/orders/${order._id}`,
+      };
+    }
+
+    return {
+      icon: Package,
+      title: "Order Updated",
+      desc: `${formatOrderCode(order._id)} is ${order.status.replaceAll("_", " ")}`,
+      time: new Date(order.updatedAt).toLocaleString(),
+      type: "success" as const,
+      link: `/admin-mobile/orders/${order._id}`,
+    };
+  });
 
   return (
     <PageTransition>
@@ -47,6 +74,11 @@ const AdminMobileAlertsPage = () => {
               <ChevronRight size={16} className="text-muted-foreground shrink-0 mt-1" />
             </motion.div>
           ))}
+          {alerts.length === 0 && (
+            <div className="glass-card p-4 text-sm text-muted-foreground">
+              No order alerts right now.
+            </div>
+          )}
         </div>
       </div>
     </PageTransition>

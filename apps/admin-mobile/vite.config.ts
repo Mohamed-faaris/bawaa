@@ -5,7 +5,10 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@': path.resolve(__dirname, './src') }
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@bawaa/convex-db": path.resolve(__dirname, "../../packages/convex-db"),
+    }
   },
   server: {
     host: true,
