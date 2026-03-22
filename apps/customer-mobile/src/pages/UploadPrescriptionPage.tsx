@@ -4,7 +4,7 @@ import { Upload, X, FileText, Plus } from "lucide-react";
 import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
 import { Textarea } from "@bawaa/ui/textarea";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
 import { AddProfileDrawer } from "@/components/AddProfileDrawer";
@@ -26,6 +26,7 @@ const UploadPrescriptionPage = () => {
   });
 
   const createOrder = useMutation(api.orders.create);
+  const generateUploadUrl = useAction(api.storage.generateUploadUrl);
 
   useEffect(() => {
     const storedAccountId = localStorage.getItem("accountId");
@@ -61,11 +62,36 @@ const UploadPrescriptionPage = () => {
 
     setIsSubmitting(true);
     try {
-      const prescriptionUrl = preview || undefined;
+      let imageUrl: string | undefined;
+      let storageId: string | undefined;
+
+      if (file) {
+        const uploadUrl = await generateUploadUrl({});
+
+        const fileResponse = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!fileResponse.ok) {
+          throw new Error("Failed to upload file");
+        }
+
+        const result = await fileResponse.json();
+        storageId = result.storageId;
+        imageUrl = preview || undefined;
+      }
+
       await createOrder({
         profileId: selectedProfileId,
-        prescription: prescriptionUrl,
+        prescription: {
+          imageUrl,
+          storageId,
+          notes: notes || undefined,
+        },
       });
+
       toast({
         title: "Success",
         description: "Prescription uploaded! We'll review shortly.",
@@ -74,6 +100,7 @@ const UploadPrescriptionPage = () => {
       setPreview(null);
       setNotes("");
     } catch (error) {
+      console.error("Upload error:", error);
       toast({ title: "Error", description: "Failed to upload prescription" });
     } finally {
       setIsSubmitting(false);

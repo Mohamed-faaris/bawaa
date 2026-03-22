@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { useQuery } from "convex/react";
+import { ChevronDown, Image } from "lucide-react";
+import { useQuery, useAction } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
 import StatusBadge from "@/components/StatusBadge";
@@ -55,10 +55,13 @@ const OrdersPage = () => {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
   const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   const orders = useQuery(api.orders.listByAccount, {
     accountId: accountId ?? null,
   });
+
+  const getImageUrl = useAction(api.storage.getImageUrl);
 
   useEffect(() => {
     const storedAccountId = localStorage.getItem("accountId");
@@ -66,6 +69,36 @@ const OrdersPage = () => {
       setAccountId(storedAccountId as Id<"accounts">);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchImageUrls = async () => {
+      if (!orders) return;
+
+      const newUrls: Record<string, string> = {};
+      for (const order of orders) {
+        if (
+          order.prescription?.storageId &&
+          !imageUrls[order.prescription.storageId]
+        ) {
+          try {
+            const url = await getImageUrl({
+              storageId: order.prescription.storageId,
+            });
+            if (url) {
+              newUrls[order.prescription.storageId] = url;
+            }
+          } catch (e) {
+            console.error("Failed to get image URL:", e);
+          }
+        }
+      }
+      if (Object.keys(newUrls).length > 0) {
+        setImageUrls((prev) => ({ ...prev, ...newUrls }));
+      }
+    };
+
+    fetchImageUrls();
+  }, [orders]);
 
   const filtered =
     orders?.filter((o) => {
@@ -114,7 +147,11 @@ const OrdersPage = () => {
                   _id: Id<"orders">;
                   status: string;
                   createdAt: number;
-                  prescription?: string;
+                  prescription?: {
+                    imageUrl?: string;
+                    storageId?: string;
+                    notes?: string;
+                  };
                 },
                 i: number,
               ) => {
@@ -174,9 +211,24 @@ const OrdersPage = () => {
                               <p className="text-xs font-semibold text-muted-foreground mb-1">
                                 Prescription
                               </p>
-                              <p className="text-sm text-foreground">
-                                {order.prescription || "No prescription image"}
-                              </p>
+                              {order.prescription?.storageId &&
+                              imageUrls[order.prescription.storageId] ? (
+                                <img
+                                  src={imageUrls[order.prescription.storageId]}
+                                  alt="Prescription"
+                                  className="w-full h-48 object-cover rounded-lg border border-border"
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Image size={16} />
+                                  <span>No prescription image</span>
+                                </div>
+                              )}
+                              {order.prescription?.notes && (
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Notes: {order.prescription.notes}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </motion.div>
