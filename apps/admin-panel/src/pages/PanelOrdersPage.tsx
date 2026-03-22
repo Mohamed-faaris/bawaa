@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Pencil, ChevronDown } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 
@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@bawaa/ui/dialog";
-import StatusBadge from "@/components/StatusBadge";
 import { toast } from "sonner";
 import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
 
@@ -33,24 +32,37 @@ const statusColors: Record<string, string> = {
 
 const PanelOrdersPage = () => {
   console.log("[PanelOrdersPage] Component rendered");
+
   const orders = useQuery(api.admin.listOrders);
   const updateOrderStatus = useMutation(api.admin.updateOrderStatus);
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const isOrderDialogOpen = selectedOrderId !== null;
 
   const orderData = orders || [];
+  const selectedOrder =
+    orderData.find((o: any) => o._id === selectedOrderId) || null;
+
+  console.log(
+    "[PanelOrdersPage] State - selectedOrderId:",
+    selectedOrderId,
+    "selectedOrder:",
+    selectedOrder?._id,
+  );
 
   useEffect(() => {
-    console.log("[PanelOrdersPage] Data fetch status:", {
-      orders:
-        orders === undefined
-          ? "loading..."
-          : `loaded ${orderData.length} orders`,
-    });
-  }, [orders, orderData.length]);
+    console.log("[PanelOrdersPage] selectedOrderId effect:", selectedOrderId);
+  }, [selectedOrderId]);
+
+  useEffect(() => {
+    console.log(
+      "[PanelOrdersPage] Data fetch:",
+      orders === undefined ? "loading..." : `${orderData.length} orders`,
+    );
+  }, [orders]);
 
   const filtered = orderData.filter((o: any) => {
     const matchFilter = filterStatus === "all" || o.status === filterStatus;
@@ -72,6 +84,20 @@ const PanelOrdersPage = () => {
       toast.error("Failed to update status");
     }
   };
+
+  const handleViewClick = (orderId: string) => {
+    console.log("[PanelOrdersPage] handleViewClick - orderId:", orderId);
+    setSelectedOrderId(orderId);
+    console.log(
+      "[PanelOrdersPage] After setSelectedOrderId - state:",
+      selectedOrderId,
+    );
+  };
+
+  console.log(
+    "[PanelOrdersPage] RENDERING DIALOG SECTION - open:",
+    !!selectedOrder,
+  );
 
   return (
     <>
@@ -149,20 +175,12 @@ const PanelOrdersPage = () => {
                 >
                   {order.status.replace("_", " ")}
                 </span>
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      console.log(
-                        "[PanelOrdersPage] View clicked for order:",
-                        order._id,
-                      );
-                      setSelectedOrder(order);
-                    }}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80"
-                  >
-                    View
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleViewClick(order._id)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80"
+                >
+                  View
+                </button>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
@@ -180,13 +198,12 @@ const PanelOrdersPage = () => {
 
       {/* Order Detail Dialog */}
       <Dialog
-        open={!!selectedOrder}
-        onOpenChange={() => {
-          console.log(
-            "[PanelOrdersPage] Dialog onOpenChange called, selectedOrder:",
-            selectedOrder?._id,
-          );
-          setSelectedOrder(null);
+        open={isOrderDialogOpen}
+        onOpenChange={(open) => {
+          console.log("[PanelOrdersPage] Dialog onOpenChange:", open);
+          if (!open) {
+            setSelectedOrderId(null);
+          }
         }}
       >
         <DialogContent className="max-w-md">
@@ -202,7 +219,7 @@ const PanelOrdersPage = () => {
                     ORD-{selectedOrder._id.slice(-4).toUpperCase()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {selectedOrder.account?.name}
+                    {selectedOrder.account?.name || "Unknown"}
                   </p>
                 </div>
                 <div className="relative">
@@ -241,7 +258,7 @@ const PanelOrdersPage = () => {
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Profile: {selectedOrder.profile?.name}
+                  Profile: {selectedOrder.profile?.name || "N/A"}
                 </p>
                 {selectedOrder.prescription?.notes && (
                   <p className="text-sm text-muted-foreground">

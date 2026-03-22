@@ -23,9 +23,7 @@ const convex = new ConvexReactClient(convexUrl as string);
 console.log("[main.tsx] Rendering app...");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ConvexProvider client={convex}>
-      <App />
-    </ConvexProvider>
-  </React.StrictMode>,
+  <ConvexProvider client={convex}>
+    <App />
+  </ConvexProvider>,
 );
