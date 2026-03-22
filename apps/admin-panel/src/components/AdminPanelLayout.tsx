@@ -1,8 +1,16 @@
-import { ReactNode, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import {
-  LayoutDashboard, ClipboardList, FileText, Truck, Users, BarChart3,
-  Settings, ChevronLeft, ChevronRight, LogOut, Pill
+  LayoutDashboard,
+  ClipboardList,
+  FileText,
+  Truck,
+  Users,
+  BarChart3,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Pill,
 } from "lucide-react";
 
 const menuItems = [
@@ -15,7 +23,7 @@ const menuItems = [
   { icon: Settings, label: "Settings", path: "/panel/settings" },
 ];
 
-const AdminPanelLayout = ({ children }: { children: ReactNode }) => {
+const AdminPanelLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,12 +31,20 @@ const AdminPanelLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className={`${collapsed ? "w-16" : "w-60"} bg-card border-r border-border flex flex-col transition-all duration-200 shrink-0`}>
-        <div className={`p-4 flex items-center ${collapsed ? "justify-center" : "gap-3"} border-b border-border`}>
+      <aside
+        className={`${collapsed ? "w-16" : "w-60"} bg-card border-r border-border flex flex-col transition-all duration-200 shrink-0`}
+      >
+        <div
+          className={`p-4 flex items-center ${collapsed ? "justify-center" : "gap-3"} border-b border-border`}
+        >
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <Pill className="text-primary-foreground" size={18} />
           </div>
-          {!collapsed && <span className="font-extrabold text-foreground text-sm">Bavaa Admin</span>}
+          {!collapsed && (
+            <span className="font-extrabold text-foreground text-sm">
+              Bavaa Admin
+            </span>
+          )}
         </div>
 
         <nav className="flex-1 p-2 space-y-1">
@@ -51,19 +67,19 @@ const AdminPanelLayout = ({ children }: { children: ReactNode }) => {
           })}
         </nav>
 
-        <div className="p-2 border-t border-border space-y-1">
+        <div className="p-2 border-t border-border">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-secondary"
           >
-            {collapsed ? <ChevronRight size={18} /> : <><ChevronLeft size={18} /><span>Collapse</span></>}
-          </button>
-          <button
-            onClick={() => navigate("/")}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10"
-          >
-            <LogOut size={18} />
-            {!collapsed && <span>Exit Panel</span>}
+            {collapsed ? (
+              <ChevronRight size={18} />
+            ) : (
+              <>
+                <ChevronLeft size={18} />
+                <span>Collapse</span>
+              </>
+            )}
           </button>
         </div>
       </aside>
@@ -71,7 +87,7 @@ const AdminPanelLayout = ({ children }: { children: ReactNode }) => {
       {/* Main content */}
       <main className="flex-1 overflow-auto">
         <div className="p-6 max-w-7xl mx-auto">
-          {children}
+          <Outlet />
         </div>
       </main>
     </div>

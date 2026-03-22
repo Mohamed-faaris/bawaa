@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@bawaa/convex-db/convex/_generated/api";
 import { Toaster } from "@bawaa/ui/toaster";
 import { Toaster as Sonner } from "@bawaa/ui/sonner";
 import { TooltipProvider } from "@bawaa/ui/tooltip";
@@ -36,16 +33,7 @@ const Unauthorized = () => (
 );
 
 const App = () => {
-  const verifyResult = useQuery(
-    api.admin.verifySecret,
-    ADMIN_SECRET ? { secret: ADMIN_SECRET } : "skip",
-  );
-
-  const isAuthorized = verifyResult?.valid === true;
-
-  if (verifyResult === undefined) {
-    return null;
-  }
+  const isAuthorized = !!ADMIN_SECRET;
 
   if (!isAuthorized) {
     return <Unauthorized />;

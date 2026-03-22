@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 const PanelSettingsPage = () => {
   return (
-    <AdminPanelLayout>
+    <>
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-foreground">Settings</h1>
         <p className="text-sm text-muted-foreground">Business and system configuration</p>
@@ -65,7 +65,7 @@ const PanelSettingsPage = () => {
           Save Changes
         </Button>
       </div>
-    </AdminPanelLayout>
+    </>
   );
 };
 
