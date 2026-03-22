@@ -89,6 +89,7 @@ const UploadPrescriptionPage = () => {
           imageUrl,
           storageId,
           notes: notes || undefined,
+          items: [],
         },
       });
 
