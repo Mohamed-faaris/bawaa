@@ -54,7 +54,9 @@ const AdminMobileOrderDetailPage = () => {
       return;
     }
     setEditedNotes(order.prescription?.notes ?? "");
-    setEditedItems((order.prescription?.items ?? []).map((item) => ({ ...item })));
+    setEditedItems(
+      (order.prescription?.items ?? []).map((item) => ({ ...item })),
+    );
     setIsEditingPrescription(false);
   }, [order]);
 
@@ -251,7 +253,8 @@ const AdminMobileOrderDetailPage = () => {
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-muted-foreground">
               Items{" "}
-              {(isEditingPrescription ? editedItems : prescriptionItems).length > 0 &&
+              {(isEditingPrescription ? editedItems : prescriptionItems)
+                .length > 0 &&
                 `(${(isEditingPrescription ? editedItems : prescriptionItems).length})`}
             </p>
             <button
@@ -296,7 +299,10 @@ const AdminMobileOrderDetailPage = () => {
           {isEditingPrescription && (
             <div className="space-y-3">
               {editedItems.map((item, idx) => (
-                <div key={idx} className="rounded-xl bg-secondary/50 p-3 space-y-2">
+                <div
+                  key={idx}
+                  className="rounded-xl bg-secondary/50 p-3 space-y-2"
+                >
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold text-muted-foreground">
                       Item {idx + 1}
@@ -341,7 +347,7 @@ const AdminMobileOrderDetailPage = () => {
                 type="button"
                 variant="outline"
                 onClick={addItem}
-                className="w-full rounded-xl gap-2"
+                className="w-full rounded-xl gap-2 p-2"
               >
                 <Plus size={14} />
                 Add Item
@@ -361,7 +367,9 @@ const AdminMobileOrderDetailPage = () => {
                 className="rounded-xl bg-card border-border min-h-[96px] resize-none"
               />
             ) : order.prescription?.notes ? (
-              <p className="text-sm text-foreground">{order.prescription.notes}</p>
+              <p className="text-sm text-foreground">
+                {order.prescription.notes}
+              </p>
             ) : (
               <p className="text-xs text-muted-foreground italic">
                 No notes saved yet.
