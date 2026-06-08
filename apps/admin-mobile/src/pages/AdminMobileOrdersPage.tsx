@@ -4,7 +4,7 @@ import { Search, ImageIcon, ChevronRight } from "lucide-react";
 import { Input } from "@bawaa/ui/input";
 import PageTransition from "@/components/PageTransition";
 import StatusBadge from "@/components/StatusBadge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   formatOrderCode,
   useAdminOrders,
@@ -23,8 +23,11 @@ const tabs: { label: string; value: OrderStatus | "all" }[] = [
 const AdminMobileOrdersPage = () => {
   const { orders } = useAdminOrders();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
+
+  const statusParam = searchParams.get("status") as OrderStatus | "all" | null;
+  const filter = statusParam && tabs.some((t) => t.value === statusParam) ? statusParam : "all";
 
   const filtered = orders.filter((o) => {
     const matchFilter = filter === "all" || o.status === filter;
@@ -49,7 +52,7 @@ const AdminMobileOrdersPage = () => {
           {tabs.map((tab) => (
             <button
               key={tab.value}
-              onClick={() => setFilter(tab.value)}
+              onClick={() => setSearchParams(tab.value === "all" ? {} : { status: tab.value })}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                 filter === tab.value ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground"
               }`}

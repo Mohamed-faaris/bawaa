@@ -71,7 +71,17 @@ const AdminMobileDashboardPage = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.05 }}
-              onClick={() => navigate("/admin-mobile/orders")}
+              onClick={() => {
+                const statusMap: Record<string, string> = {
+                  "New Orders": "ordered",
+                  "Pending Review": "ordered",
+                  Processing: "processing",
+                  Ready: "ready",
+                  Delivered: "delivered",
+                  "Active Delivery": "out_for_delivery",
+                };
+                navigate(`/admin-mobile/orders?status=${statusMap[stat.label]}`);
+              }}
               className="glass-card p-4 text-left"
             >
               <div className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center mb-3`}>
