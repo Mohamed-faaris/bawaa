@@ -8,6 +8,7 @@ import AdminPanelLayout from "@/components/AdminPanelLayout";
 
 import PanelDashboardPage from "@/pages/PanelDashboardPage";
 import PanelOrdersPage from "@/pages/PanelOrdersPage";
+import PanelOrderDetailPage from "@/pages/PanelOrderDetailPage";
 import PanelPrescriptionsPage from "@/pages/PanelPrescriptionsPage";
 import PanelDeliveriesPage from "@/pages/PanelDeliveriesPage";
 import PanelDeliveryDetailPage from "@/pages/PanelDeliveryDetailPage";
@@ -50,6 +51,7 @@ const App = () => {
             <Route element={<AdminPanelLayout />}>
               <Route path="/panel" element={<PanelDashboardPage />} />
               <Route path="/panel/orders" element={<PanelOrdersPage />} />
+              <Route path="/panel/order" element={<PanelOrderDetailPage />} />
               <Route
                 path="/panel/prescriptions"
                 element={<PanelPrescriptionsPage />}

@@ -14,6 +14,7 @@ import {
 } from "@bawaa/ui/dialog";
 import { toast } from "sonner";
 import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
+import { useNavigate } from "react-router-dom";
 
 type OrderStatus =
   | "ordered"
@@ -35,6 +36,7 @@ const PanelOrdersPage = () => {
 
   const orders = useQuery(api.admin.listOrders);
   const updateOrderStatus = useMutation(api.admin.updateOrderStatus);
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
@@ -87,11 +89,7 @@ const PanelOrdersPage = () => {
 
   const handleViewClick = (orderId: string) => {
     console.log("[PanelOrdersPage] handleViewClick - orderId:", orderId);
-    setSelectedOrderId(orderId);
-    console.log(
-      "[PanelOrdersPage] After setSelectedOrderId - state:",
-      selectedOrderId,
-    );
+    navigate(`/panel/order?orderid=${orderId}`);
   };
 
   console.log(
