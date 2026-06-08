@@ -20,7 +20,7 @@ const menuItems = [
   { icon: Truck, label: "Deliveries", path: "/panel/deliveries" },
   { icon: Users, label: "Users", path: "/panel/users" },
   { icon: BarChart3, label: "Analytics", path: "/panel/analytics" },
-  { icon: Settings, label: "Settings", path: "/panel/settings" },
+  // { icon: Settings, label: "Settings", path: "/panel/settings" },
 ];
 
 const AdminPanelLayout = () => {
