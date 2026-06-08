@@ -243,7 +243,7 @@ const UploadPrescriptionPage = () => {
           <Button
             onClick={handleSubmit}
             disabled={!file || isSubmitting}
-            className="w-full h-13 rounded-xl text-base font-semibold mt-6 gap-2"
+            className="w-full h-13 rounded-xl text-base font-semibold mt-6 gap-2 p-2"
           >
             <Upload size={18} />{" "}
             {isSubmitting ? "Uploading..." : "Upload Prescription"}
