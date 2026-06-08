@@ -163,6 +163,10 @@
         "typescript": "^5.8.3",
       },
     },
+    "packages/assets": {
+      "name": "@bawaa/assets",
+      "version": "0.0.0",
+    },
     "packages/convex-db": {
       "name": "@bawaa/convex-db",
       "version": "1.0.0",
@@ -332,6 +336,8 @@
     "@bawaa/admin-mobile": ["@bawaa/admin-mobile@workspace:apps/admin-mobile"],
 
     "@bawaa/admin-panel": ["@bawaa/admin-panel@workspace:apps/admin-panel"],
+
+    "@bawaa/assets": ["@bawaa/assets@workspace:packages/assets"],
 
     "@bawaa/convex-db": ["@bawaa/convex-db@workspace:packages/convex-db"],
 

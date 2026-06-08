@@ -65,11 +65,11 @@ const LoginPage = () => {
           transition={{ duration: 0.5 }}
           className="space-y-2 mb-10"
         >
-          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-6">
-            <span className="text-primary-foreground text-2xl font-extrabold">
-              B
-            </span>
-          </div>
+          <img
+            src="/bawaa_logo.png"
+            alt="Bawaa Medicals Logo"
+            className="w-20 h-20 rounded-2xl object-contain mb-6"
+          />
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
             Bawaa Medicals
           </h1>
