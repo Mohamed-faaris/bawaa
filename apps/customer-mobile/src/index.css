@@ -71,3 +71,28 @@
     @apply bg-card/80 backdrop-blur-lg border border-border/50 rounded-2xl shadow-sm;
   }
 }
+
+[data-sonner-toaster] {
+  --width: calc(100% - 32px);
+  --mobile-y: 16px;
+  z-index: 9999;
+}
+
+[data-sonner-toaster] [data-sonner-toast] {
+  @apply font-sans;
+  width: var(--width);
+  max-width: 100%;
+}
+
+[data-sonner-toaster][data-x-position="center"] {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+[data-sonner-toaster][data-y-position="top"] {
+  top: env(safe-area-inset-top, 12px);
+}
+
+[data-sonner-toaster][data-y-position="bottom"] {
+  bottom: calc(env(safe-area-inset-bottom, 12px) + 80px);
+}
