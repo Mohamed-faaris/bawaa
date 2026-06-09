@@ -39,6 +39,7 @@ const LoginPage = () => {
         const result = await verifyOtp({ phone, code: otp });
         if (result.success) {
           localStorage.setItem("accountId", result.accountId);
+          window.dispatchEvent(new CustomEvent("fcm:login"));
           toast({
             title: "Success",
             description: result.isNewUser ? "Welcome!" : "Welcome back!",

@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
 
 const prescriptionItemValidator = v.object({
   name: v.optional(v.string()),
@@ -74,6 +75,25 @@ export const updateOrderStatus = mutation({
         : undefined,
       updatedAt: Date.now(),
     });
+
+    const order = await ctx.db.get(args.orderId);
+    if (order) {
+      const profile = await ctx.db.get(order.profileId);
+      const account = profile
+        ? await ctx.db.get(profile.accountId)
+        : null;
+
+      if (account) {
+        const orderCode = `ORD-${args.orderId.slice(-4).toUpperCase()}`;
+        await ctx.scheduler.runAfter(0, api.notifications.sendCustomerNotification, {
+          accountId: account._id,
+          orderId: args.orderId,
+          orderCode,
+          newStatus: args.status,
+        });
+      }
+    }
+
     return { success: true };
   },
 });

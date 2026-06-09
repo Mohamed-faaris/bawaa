@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import BottomNav from "@/components/BottomNav";
+import { useFcmToken } from "@/hooks/useFcmToken";
 
 import LoginPage from "@/pages/LoginPage";
 import ProfileSelectPage from "@/pages/ProfileSelectPage";
@@ -39,7 +40,10 @@ const NavigationBars = () => {
   return isCustomerApp ? <BottomNav /> : null;
 };
 
-const App = () => (
+const App = () => {
+  useFcmToken();
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -60,6 +64,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

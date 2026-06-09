@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { api } from "./_generated/api";
 
 export const list = query({
   args: { profileId: v.id("profiles") },
@@ -75,6 +76,20 @@ export const create = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
+
+    const profile = await ctx.db.get(args.profileId);
+    const account = profile
+      ? await ctx.db.get(profile.accountId)
+      : null;
+
+    const orderCode = `ORD-${orderId.slice(-4).toUpperCase()}`;
+
+    await ctx.scheduler.runAfter(0, api.notifications.sendAdminNotification, {
+      orderId,
+      orderCode,
+      customerName: account?.name,
+    });
+
     return { orderId };
   },
 });

@@ -10,6 +10,7 @@ import { ShieldAlert } from "lucide-react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 
 import AdminMobileBottomNav from "@/components/AdminMobileBottomNav";
+import { useFcmToken } from "@/hooks/useFcmToken";
 
 import AdminMobileDashboardPage from "@/pages/AdminMobileDashboardPage";
 import AdminMobileOrdersPage from "@/pages/AdminMobileOrdersPage";
@@ -118,14 +119,17 @@ const AppShell = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AppShell />
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useFcmToken();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AppShell />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AdminPanelLayout from "@/components/AdminPanelLayout";
+import { useFcmToken } from "@/hooks/useFcmToken";
 
 import PanelDashboardPage from "@/pages/PanelDashboardPage";
 import PanelOrdersPage from "@/pages/PanelOrdersPage";
@@ -35,6 +36,8 @@ const Unauthorized = () => (
 
 const App = () => {
   const isAuthorized = !!ADMIN_SECRET;
+
+  useFcmToken();
 
   if (!isAuthorized) {
     return <Unauthorized />;

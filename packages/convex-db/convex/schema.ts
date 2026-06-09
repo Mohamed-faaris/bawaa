@@ -41,4 +41,11 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_profile", ["profileId"]),
 
+  fcmTokens: defineTable({
+    accountId: v.optional(v.id("accounts")),
+    isAdmin: v.boolean(),
+    token: v.string(),
+    createdAt: v.number(),
+  }).index("by_account", ["accountId"])
+    .index("by_admin", ["isAdmin"]),
 });
