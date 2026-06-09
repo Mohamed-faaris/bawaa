@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bawaa Medicals</string>
+    <string name="title_activity_main">Bawaa Medicals</string>
+    <string name="package_name">com.baawa.customer</string>
+    <string name="custom_url_scheme">com.baawa.customer</string>
+</resources>
