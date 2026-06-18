@@ -78,30 +78,30 @@ const HelpPage = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="glass-card p-4"
+              className="glass-card overflow-hidden"
             >
-              <div className="flex items-start gap-3">
+              <a
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 flex items-start gap-3 hover:bg-secondary/40 transition-colors"
+              >
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm mb-1">{item.label}</p>
                   {item.lines.map((line) => (
                     <p key={line} className="text-sm text-muted-foreground">{line}</p>
                   ))}
                 </div>
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 hover:bg-primary/20 transition-colors"
-                >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                   <item.buttonIcon size={16} className="text-primary" />
-                </a>
-              </div>
+                </div>
+              </a>
               {"embed" in item && (
                 <iframe
                   src={item.embed}
                   width="100%"
                   height="180"
-                  style={{ border: 0, borderRadius: "0.75rem", marginTop: "0.75rem" }}
+                  style={{ border: 0 }}
                   allowFullscreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
