@@ -66,10 +66,12 @@ export const updateAccount = mutation({
   args: {
     accountId: v.id("accounts"),
     name: v.optional(v.string()),
+    address: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const updates: Record<string, unknown> = {};
     if (args.name !== undefined) updates.name = args.name;
+    if (args.address !== undefined) updates.address = args.address;
 
     await ctx.db.patch(args.accountId, updates);
     return { success: true };

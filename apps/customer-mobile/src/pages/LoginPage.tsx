@@ -7,9 +7,11 @@ import { Input } from "@bawaa/ui/input";
 import { toast } from "@bawaa/ui/use-toast";
 import { useMutation } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
+import { useAuth } from "@/hooks/useAuth";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
@@ -38,18 +40,22 @@ const LoginPage = () => {
       try {
         const result = await verifyOtp({ phone, code: otp });
         if (result.success) {
-          localStorage.setItem("accountId", result.accountId);
+          login(result.accountId);
           window.dispatchEvent(new CustomEvent("fcm:login"));
           toast({
             title: "Success",
             description: result.isNewUser ? "Welcome!" : "Welcome back!",
           });
-          navigate("/home");
+          if (result.isNewUser) {
+            navigate("/onboarding", { replace: true });
+          } else {
+            navigate("/home", { replace: true });
+          }
         }
       } catch (error) {
         toast({
           title: "Error",
-          description: "Invalid OTP. Use 1234 for testing.",
+          description: "Invalid OTP. Please try again.",
         });
       } finally {
         setIsLoading(false);

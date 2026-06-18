@@ -5,7 +5,7 @@ import { useQuery, useAction } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
 import StatusBadge from "@/components/StatusBadge";
-import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
+import { useAuth } from "@/hooks/useAuth";
 
 type FilterStatus = "all" | "processing" | "ready" | "delivered";
 
@@ -52,23 +52,16 @@ const StepBar = ({ current }: { current: number }) => (
 );
 
 const OrdersPage = () => {
+  const { accountId } = useAuth();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterStatus>("all");
-  const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   const orders = useQuery(api.orders.listByAccount, {
-    accountId: accountId ?? null,
+    accountId,
   });
 
   const getImageUrl = useAction(api.storage.getImageUrl);
-
-  useEffect(() => {
-    const storedAccountId = localStorage.getItem("accountId");
-    if (storedAccountId) {
-      setAccountId(storedAccountId as Id<"accounts">);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchImageUrls = async () => {

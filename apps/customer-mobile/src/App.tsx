@@ -11,15 +11,19 @@ import {
 } from "react-router-dom";
 
 import BottomNav from "@/components/BottomNav";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { useFcmToken } from "@/hooks/useFcmToken";
+import { AuthProvider } from "@/hooks/useAuth";
 
 import LoginPage from "@/pages/LoginPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 import ProfileSelectPage from "@/pages/ProfileSelectPage";
 import HomePage from "@/pages/HomePage";
 import UploadPrescriptionPage from "@/pages/UploadPrescriptionPage";
 import OrdersPage from "@/pages/OrdersPage";
 import PrescriptionHistoryPage from "@/pages/PrescriptionHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
+import HelpPage from "@/pages/HelpPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,24 +49,84 @@ const App = () => {
 
   return (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <NavigationBars />
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/profiles" element={<ProfileSelectPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/upload" element={<UploadPrescriptionPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/history" element={<PrescriptionHistoryPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <NavigationBars />
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profiles"
+              element={
+                <ProtectedRoute>
+                  <ProfileSelectPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/upload"
+              element={
+                <ProtectedRoute>
+                  <UploadPrescriptionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <PrescriptionHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/help"
+              element={
+                <ProtectedRoute>
+                  <HelpPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
   );
 };

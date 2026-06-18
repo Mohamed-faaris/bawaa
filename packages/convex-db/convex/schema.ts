@@ -5,6 +5,7 @@ export default defineSchema({
   accounts: defineTable({
     phone: v.string(),
     name: v.string(),
+    address: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_phone", ["phone"]),
   profiles: defineTable({

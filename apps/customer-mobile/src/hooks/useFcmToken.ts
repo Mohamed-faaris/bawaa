@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { useMutation } from "convex/react";
@@ -6,6 +6,7 @@ import { api } from "@bawaa/convex-db/convex/_generated/api";
 
 export function useFcmToken() {
   const registerToken = useMutation(api.notifications.registerToken);
+  const initialized = useRef(false);
   const [accountId, setAccountId] = useState<string | undefined>(
     typeof window !== "undefined"
       ? localStorage.getItem("accountId") || undefined
@@ -25,29 +26,40 @@ export function useFcmToken() {
   }, []);
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || initialized.current) return;
+    initialized.current = true;
+
+    let registrationListener: { remove: () => void } | undefined;
+    let receivedListener: { remove: () => void } | undefined;
+    let unsubscribeOnMessage: (() => void) | undefined;
 
     const init = async () => {
       try {
         if (Capacitor.isNativePlatform()) {
-          const perm = await PushNotifications.requestPermissions();
-          if (perm.receive !== "granted") return;
+          const currentPerm = await PushNotifications.checkPermissions();
+          if (currentPerm.receive !== "granted") {
+            const perm = await PushNotifications.requestPermissions();
+            if (perm.receive !== "granted") return;
+          }
 
           await PushNotifications.register();
 
-          PushNotifications.addListener("registration", (token) => {
-            registerToken({
-              accountId: accountId as any,
-              isAdmin: false,
-              token: token.value,
-            });
-          });
+          registrationListener = await PushNotifications.addListener(
+            "registration",
+            (token) => {
+              registerToken({
+                accountId: accountId as any,
+                isAdmin: false,
+                token: token.value,
+              });
+            },
+          );
 
-          PushNotifications.addListener(
+          receivedListener = await PushNotifications.addListener(
             "pushNotificationReceived",
             (notification) => {
-              const { title, body } = notification;
-              if (title) {
+              const { title, body } = notification.notification || notification;
+              if (title && typeof Notification !== "undefined") {
                 new Notification(title, { body: body || "" });
               }
             },
@@ -77,9 +89,9 @@ export function useFcmToken() {
             token,
           });
 
-          onMessage(messaging, (payload) => {
+          unsubscribeOnMessage = onMessage(messaging, (payload) => {
             const { title, body } = payload.notification || {};
-            if (title) {
+            if (title && typeof Notification !== "undefined") {
               new Notification(title, { body: body || "" });
             }
           });
@@ -90,5 +102,11 @@ export function useFcmToken() {
     };
 
     void init();
+
+    return () => {
+      registrationListener?.remove();
+      receivedListener?.remove();
+      unsubscribeOnMessage?.();
+    };
   }, [accountId, registerToken]);
 }

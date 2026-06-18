@@ -1,26 +1,18 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, RotateCcw, Calendar } from "lucide-react";
 import { Button } from "@bawaa/ui/button";
 import { useQuery } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@bawaa/ui/use-toast";
-import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
 
 const PrescriptionHistoryPage = () => {
-  const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
+  const { accountId } = useAuth();
 
   const orders = useQuery(api.orders.listByAccount, {
-    accountId: accountId ?? null,
+    accountId,
   });
-
-  useEffect(() => {
-    const storedAccountId = localStorage.getItem("accountId");
-    if (storedAccountId) {
-      setAccountId(storedAccountId as Id<"accounts">);
-    }
-  }, []);
 
   const handleReorder = (orderId: string) => {
     toast({

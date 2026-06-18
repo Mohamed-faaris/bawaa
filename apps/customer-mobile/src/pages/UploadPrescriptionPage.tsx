@@ -8,32 +8,26 @@ import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
 import { AddProfileDrawer } from "@/components/AddProfileDrawer";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@bawaa/ui/use-toast";
 import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
 
 const UploadPrescriptionPage = () => {
+  const { accountId } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [selectedProfileId, setSelectedProfileId] =
     useState<Id<"profiles"> | null>(null);
-  const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const profiles = useQuery(api.profiles.list, {
-    accountId: accountId ?? null,
+    accountId,
   });
 
   const createOrder = useMutation(api.orders.create);
   const generateUploadUrl = useAction(api.storage.generateUploadUrl);
-
-  useEffect(() => {
-    const storedAccountId = localStorage.getItem("accountId");
-    if (storedAccountId) {
-      setAccountId(storedAccountId as Id<"accounts">);
-    }
-  }, []);
 
   useEffect(() => {
     if (profiles && profiles.length > 0 && !selectedProfileId) {

@@ -36,3 +36,4 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+apps/customer-mobile/android/app/google-services.json

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -12,7 +11,7 @@ import {
 import { useQuery } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import PageTransition from "@/components/PageTransition";
-import type { Id } from "@bawaa/convex-db/convex/_generated/dataModel";
+import { useAuth } from "@/hooks/useAuth";
 
 const quickActions = [
   {
@@ -46,14 +45,7 @@ const statusColors: Record<string, string> = {
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [accountId, setAccountId] = useState<Id<"accounts"> | null>(null);
-
-  useEffect(() => {
-    const storedAccountId = localStorage.getItem("accountId");
-    if (storedAccountId) {
-      setAccountId(storedAccountId as Id<"accounts">);
-    }
-  }, []);
+  const { accountId } = useAuth();
 
   const orders = useQuery(api.orders.listByAccount, {
     accountId: accountId ?? null,
