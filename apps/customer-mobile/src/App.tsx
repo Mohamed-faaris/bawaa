@@ -23,6 +23,7 @@ import UploadPrescriptionPage from "@/pages/UploadPrescriptionPage";
 import OrdersPage from "@/pages/OrdersPage";
 import PrescriptionHistoryPage from "@/pages/PrescriptionHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
+import GalleryPage from "@/pages/GalleryPage";
 import HelpPage from "@/pages/HelpPage";
 import NotFound from "@/pages/NotFound";
 
@@ -34,6 +35,7 @@ const NavigationBars = () => {
 
   const isCustomerApp = [
     "/home",
+    "/gallery",
     "/upload",
     "/orders",
     "/history",
@@ -79,6 +81,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gallery"
+              element={
+                <ProtectedRoute>
+                  <GalleryPage />
                 </ProtectedRoute>
               }
             />

@@ -1,9 +1,10 @@
-import { Home, Upload, ClipboardList, Clock, User } from "lucide-react";
+import { Home, Upload, ClipboardList, Clock, User, Image } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/home" },
+  { icon: Image, label: "Gallery", path: "/gallery" },
   { icon: Upload, label: "Upload", path: "/upload" },
   { icon: ClipboardList, label: "Orders", path: "/orders" },
   { icon: Clock, label: "History", path: "/history" },
