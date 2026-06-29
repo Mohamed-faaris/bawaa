@@ -23,6 +23,7 @@ import UploadPrescriptionPage from "@/pages/UploadPrescriptionPage";
 import OrdersPage from "@/pages/OrdersPage";
 import SettingsPage from "@/pages/SettingsPage";
 import GalleryPage from "@/pages/GalleryPage";
+import GalleryProductPage from "@/pages/GalleryProductPage";
 import HelpPage from "@/pages/HelpPage";
 import NotFound from "@/pages/NotFound";
 
@@ -87,6 +88,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <GalleryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gallery/:productId"
+              element={
+                <ProtectedRoute>
+                  <GalleryProductPage />
                 </ProtectedRoute>
               }
             />
