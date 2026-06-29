@@ -21,7 +21,6 @@ import ProfileSelectPage from "@/pages/ProfileSelectPage";
 import HomePage from "@/pages/HomePage";
 import UploadPrescriptionPage from "@/pages/UploadPrescriptionPage";
 import OrdersPage from "@/pages/OrdersPage";
-import PrescriptionHistoryPage from "@/pages/PrescriptionHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
 import GalleryPage from "@/pages/GalleryPage";
 import HelpPage from "@/pages/HelpPage";
@@ -38,7 +37,6 @@ const NavigationBars = () => {
     "/gallery",
     "/upload",
     "/orders",
-    "/history",
     "/settings",
     "/profiles",
   ].includes(path);
@@ -105,14 +103,6 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <OrdersPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/history"
-              element={
-                <ProtectedRoute>
-                  <PrescriptionHistoryPage />
                 </ProtectedRoute>
               }
             />
