@@ -101,7 +101,7 @@ const HomePage = () => {
               Upload Prescription
             </h2>
             <p className="text-primary-foreground/80 text-sm mt-1 max-w-[200px]">
-              Get your medicines delivered in under 2 hours
+              Get your medicines delivered at doorstep
             </p>
             <button
               onClick={() => navigate("/upload")}
