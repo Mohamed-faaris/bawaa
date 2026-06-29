@@ -78,7 +78,7 @@ const LoginPage = () => {
             className="w-20 h-20 rounded-2xl object-contain mb-6"
           />
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-            Bawaa Medicals
+            Bawaa Medicals Aduthurai 
           </h1>
           <p className="text-muted-foreground text-base">
             Your trusted pharmacy, delivered to your door.

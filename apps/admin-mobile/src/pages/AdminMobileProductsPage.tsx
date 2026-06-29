@@ -89,9 +89,11 @@ const AdminMobileProductsPage = () => {
                     {statusConfig[product.status].label}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  ₹{product.price}
-                </p>
+                {product.price != null && (
+                  <p className="text-xs text-muted-foreground">
+                    ₹{product.price}
+                  </p>
+                )}
                 <p className="text-[11px] text-muted-foreground mt-0.5">
                   {new Date(product.createdAt).toLocaleDateString()}
                 </p>

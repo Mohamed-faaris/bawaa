@@ -107,10 +107,12 @@ const GalleryProductPage = () => {
         )}
 
         <div className="glass-card p-4 space-y-3">
-          <div className="flex items-center gap-1.5 text-2xl font-extrabold text-foreground">
-            <IndianRupee size={22} />
-            {product.price}
-          </div>
+          {product.price != null && (
+            <div className="flex items-center gap-1.5 text-2xl font-extrabold text-foreground">
+              <IndianRupee size={22} />
+              {product.price}
+            </div>
+          )}
 
           {product.description && (
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -72,10 +72,12 @@ const GalleryPage = () => {
                 <p className="text-sm font-semibold text-foreground truncate">
                   {product.title}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-0.5">
-                  <IndianRupee size={11} />
-                  {product.price}
-                </p>
+                {product.price != null && (
+                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-0.5">
+                    <IndianRupee size={11} />
+                    {product.price}
+                  </p>
+                )}
               </div>
             </motion.button>
           ))}

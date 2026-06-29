@@ -107,10 +107,6 @@ const AdminMobileProductFormPage = () => {
       toast.error("Title is required");
       return;
     }
-    if (!price || isNaN(Number(price)) || Number(price) < 0) {
-      toast.error("Valid price is required");
-      return;
-    }
 
     setIsSaving(true);
     try {
@@ -145,7 +141,7 @@ const AdminMobileProductFormPage = () => {
           thumbnail: thumbnail ?? undefined,
           title: title.trim(),
           additionalPhotos: additional.length ? additional : undefined,
-          price: Number(price),
+          price: price ? Number(price) : undefined,
           description: description.trim() || undefined,
           status,
           autoDeleteAfter,
@@ -156,7 +152,7 @@ const AdminMobileProductFormPage = () => {
           thumbnail: thumbnail!,
           title: title.trim(),
           additionalPhotos: additional,
-          price: Number(price),
+          price: price ? Number(price) : undefined,
           description: description.trim() || undefined,
           status,
           autoDeleteAfter,

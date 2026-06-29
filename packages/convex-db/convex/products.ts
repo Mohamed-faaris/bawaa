@@ -24,7 +24,7 @@ export const create = mutation({
     thumbnail: v.string(),
     title: v.string(),
     additionalPhotos: v.array(v.string()),
-    price: v.number(),
+    price: v.optional(v.number()),
     description: v.optional(v.string()),
     status: v.union(
       v.literal("active"),

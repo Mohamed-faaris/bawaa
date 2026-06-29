@@ -132,10 +132,12 @@ const AdminMobileProductDetailPage = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xl font-extrabold text-foreground">
-            <IndianRupee size={18} />
-            {product.price}
-          </div>
+          {product.price != null && (
+            <div className="flex items-center gap-1.5 text-xl font-extrabold text-foreground">
+              <IndianRupee size={18} />
+              {product.price}
+            </div>
+          )}
 
           {product.description && (
             <p className="text-sm text-muted-foreground">{product.description}</p>

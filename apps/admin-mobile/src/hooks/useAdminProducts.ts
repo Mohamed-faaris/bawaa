@@ -21,7 +21,7 @@ export function useAdminProducts() {
       thumbnail: string;
       title: string;
       additionalPhotos: string[];
-      price: number;
+      price?: number;
       description?: string;
       status: ProductStatus;
       autoDeleteAfter?: number;
