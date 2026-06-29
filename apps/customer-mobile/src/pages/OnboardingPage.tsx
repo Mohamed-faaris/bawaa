@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { User, MapPin, ArrowRight, Loader2 } from "lucide-react";
+import { User, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
 import { useMutation } from "convex/react";
 import { api } from "@bawaa/convex-db/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@bawaa/ui/use-toast";
+import AddressPicker from "@/components/AddressPicker";
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -87,18 +88,7 @@ const OnboardingPage = () => {
             <label className="text-sm font-semibold text-foreground">
               Delivery Address
             </label>
-            <div className="relative">
-              <MapPin
-                size={18}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-              />
-              <Input
-                placeholder="Enter your address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="pl-11 h-13 text-base rounded-xl bg-card border-border"
-              />
-            </div>
+            <AddressPicker value={address} onChange={setAddress} />
           </div>
 
           <Button
