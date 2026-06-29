@@ -16,6 +16,9 @@ import AdminMobileDashboardPage from "@/pages/AdminMobileDashboardPage";
 import AdminMobileOrdersPage from "@/pages/AdminMobileOrdersPage";
 import AdminMobileOrderDetailPage from "@/pages/AdminMobileOrderDetailPage";
 import AdminMobileAlertsPage from "@/pages/AdminMobileAlertsPage";
+import AdminMobileProductsPage from "@/pages/AdminMobileProductsPage";
+import AdminMobileProductFormPage from "@/pages/AdminMobileProductFormPage";
+import AdminMobileProductDetailPage from "@/pages/AdminMobileProductDetailPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -112,6 +115,10 @@ const AppShell = () => {
           path="/admin-mobile/orders/:orderId"
           element={<AdminMobileOrderDetailPage />}
         />
+        <Route path="/admin-mobile/products" element={<AdminMobileProductsPage />} />
+        <Route path="/admin-mobile/products/new" element={<AdminMobileProductFormPage />} />
+        <Route path="/admin-mobile/products/:productId" element={<AdminMobileProductDetailPage />} />
+        <Route path="/admin-mobile/products/:productId/edit" element={<AdminMobileProductFormPage />} />
         <Route path="/admin-mobile/alerts" element={<AdminMobileAlertsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -42,6 +42,23 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_profile", ["profileId"]),
 
+  products: defineTable({
+    thumbnail: v.string(),
+    title: v.string(),
+    additionalPhotos: v.array(v.string()),
+    price: v.number(),
+    description: v.optional(v.string()),
+    status: v.union(
+      v.literal("active"),
+      v.literal("inactive"),
+      v.literal("archived"),
+    ),
+    autoDeleteAfter: v.optional(v.number()),
+    createdBy: v.optional(v.id("accounts")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_status", ["status"]),
+
   fcmTokens: defineTable({
     accountId: v.optional(v.id("accounts")),
     isAdmin: v.boolean(),

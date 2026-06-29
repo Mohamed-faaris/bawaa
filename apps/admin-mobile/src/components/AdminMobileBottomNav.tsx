@@ -1,10 +1,11 @@
-import { Home, ClipboardList, Bell } from "lucide-react";
+import { Home, ClipboardList, Bell, Package } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/admin-mobile" },
   { icon: ClipboardList, label: "Orders", path: "/admin-mobile/orders" },
+  { icon: Package, label: "Products", path: "/admin-mobile/products" },
   { icon: Bell, label: "Alerts", path: "/admin-mobile/alerts" },
 ];
 

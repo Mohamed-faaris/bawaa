@@ -12,6 +12,7 @@ import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as notifications from "../notifications.js";
 import type * as orders from "../orders.js";
+import type * as products from "../products.js";
 import type * as profiles from "../profiles.js";
 import type * as storage from "../storage.js";
 
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   notifications: typeof notifications;
   orders: typeof orders;
+  products: typeof products;
   profiles: typeof profiles;
   storage: typeof storage;
 }>;
