@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ImageIcon, Plus, Trash2, Save, X } from "lucide-react";
-import { useAction, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { Button } from "@bawaa/ui/button";
 import { Input } from "@bawaa/ui/input";
 import { Textarea } from "@bawaa/ui/textarea";
@@ -17,7 +17,7 @@ const AdminMobileProductFormPage = () => {
   const isEditing = !!productId;
 
   const existingProduct = useQuery(api.products.get, productId ? { productId: productId as any } : "skip");
-  const { createProduct, updateProduct, generateUploadUrl } = useAdminProducts();
+  const { createProduct, updateProduct, generateUploadUrl, getImageUrl } = useAdminProducts();
 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
@@ -46,13 +46,31 @@ const AdminMobileProductFormPage = () => {
         ? String(Math.round((existingProduct.autoDeleteAfter - Date.now()) / 86400000))
         : "",
     );
-  }, [existingProduct]);
+    setThumbnailStorageId(existingProduct.thumbnail);
+    setAdditionalStorageIds(existingProduct.additionalPhotos);
+
+    let cancelled = false;
+    const loadImages = async () => {
+      const thumbUrl = await getImageUrl({ storageId: existingProduct.thumbnail });
+      if (!cancelled && thumbUrl) setThumbnailPreview(thumbUrl);
+
+      const urls = await Promise.all(
+        existingProduct.additionalPhotos.map((sid) =>
+          getImageUrl({ storageId: sid }).catch(() => null),
+        ),
+      );
+      if (!cancelled) setAdditionalPreviews(urls.filter(Boolean) as string[]);
+    };
+    void loadImages();
+    return () => { cancelled = true; };
+  }, [existingProduct, getImageUrl]);
 
   const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setThumbnailFile(file);
     setThumbnailPreview(URL.createObjectURL(file));
+    setThumbnailStorageId(null);
   };
 
   const handleAdditionalSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +78,7 @@ const AdminMobileProductFormPage = () => {
     if (!files.length) return;
     setAdditionalFiles((prev) => [...prev, ...files]);
     setAdditionalPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    setAdditionalStorageIds((prev) => [...prev, ...files.map(() => "")]);
   };
 
   const removeAdditional = (index: number) => {
@@ -98,17 +117,21 @@ const AdminMobileProductFormPage = () => {
       let thumbnail = thumbnailStorageId;
       let additional = additionalStorageIds;
 
-      if (thumbnailFile && !thumbnailStorageId) {
+      if (thumbnailFile) {
         setIsUploading(true);
         thumbnail = await uploadFile(thumbnailFile);
         setIsUploading(false);
       }
 
-      if (additionalFiles.length > additionalStorageIds.length) {
+      const pendingUploads = additionalStorageIds
+        .map((id, i) => (id === "" ? i : -1))
+        .filter((i) => i !== -1);
+      if (pendingUploads.length > 0) {
         setIsUploading(true);
-        const newFiles = additionalFiles.slice(additionalStorageIds.length);
-        const newIds = await Promise.all(newFiles.map((f) => uploadFile(f)));
-        additional = [...additionalStorageIds, ...newIds];
+        for (const idx of pendingUploads) {
+          const storageId = await uploadFile(additionalFiles[idx]);
+          additional[idx] = storageId;
+        }
         setIsUploading(false);
       }
 
